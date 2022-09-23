@@ -1,47 +1,160 @@
 <script lang="ts">
-	import svelteLogo from "./assets/svelte.svg";
-	import Counter from "./lib/Counter.svelte";
+	import Timer from "./lib/Timer.svelte";
+	import locationsJson from "./assets/locations.json";
+	import { calculateDistance, distanceSort } from "./Utils";
 
-	import locations from "./assets/locations.json";
+	const thresholdFeet = 100;
+	const difficultyDistances = {
+		Easy: [100, 1000],
+		Medium: [500, 3000],
+		Hard: [1000, 5000],
+	};
+	const metersToFeet = 3.28084;
+
+	let curLocation: GameLocation = null;
+	let curThreshold: number;
+	let startTime: Date | null = null;
+	let error: string = "";
+	let positionWatchId: number | null = null;
+	let gameState: GameState = "BeforeStart";
+	let locations: GameLocation[] = locationsJson;
+	let difficulty: GameDifficulty = "Easy";
+	let flashing = false;
+
+	let score = 0;
+
+	function chooseLocation(curPos: GeolocationPosition) {
+		console.log(curPos.coords);
+
+		let difficultyLocations = locations.filter((loc) => {
+			let dist = calculateDistance(
+				loc.coords[0],
+				loc.coords[1],
+				curPos.coords.latitude,
+				curPos.coords.longitude
+			);
+
+			console.log(loc.name, dist);
+
+			return (
+				dist >= difficultyDistances[difficulty][0] &&
+				dist <= difficultyDistances[difficulty][1]
+			);
+		});
+
+		let chosen: GameLocation;
+		if (difficultyLocations.length === 0) {
+			// choose closest
+			chosen = locations.sort(distanceSort(curPos.coords))[0];
+		} else {
+			chosen =
+				difficultyLocations[
+					Math.floor(Math.random() * difficultyLocations.length)
+				];
+		}
+
+		curThreshold = chosen?.threshold ?? thresholdFeet;
+
+		return chosen;
+	}
+
+	function startGame() {
+		gameState = "AwaitingGPS";
+		getLocation();
+	}
+
+	function nextScore(pos: GeolocationPosition) {
+		score++;
+		navigator.vibrate(100);
+		flashing = true;
+		setTimeout(() => {
+			flashing = false;
+		}, 1000);
+		curLocation = chooseLocation(pos);
+		startTimer();
+	}
+
+	function startTimer() {
+		startTime = new Date();
+	}
+
+	function getLocation() {
+		if (navigator.geolocation) {
+			positionWatchId = navigator.geolocation.watchPosition(
+				updateLocation,
+				(err) => {
+					switch (err.code) {
+						case 1:
+							error = "This game cannot be played without GPS.";
+							break;
+						default:
+							error = "An error occurred while attempting to get GPS position.";
+							break;
+					}
+				}
+			);
+		} else {
+			error = "Your device/browser does not support GPS.";
+			return false;
+		}
+	}
+
+	function updateLocation(pos: GeolocationPosition) {
+		if (gameState === "AwaitingGPS") {
+			curLocation = chooseLocation(pos);
+			startTimer();
+			gameState = "Playing";
+		}
+
+		if (
+			calculateDistance(
+				curLocation.coords[0],
+				curLocation.coords[1],
+				pos.coords.latitude,
+				pos.coords.longitude
+			) <= curThreshold
+		) {
+			nextScore(pos);
+		}
+	}
 </script>
 
-<main>
-	<div>
-		<a href="https://vitejs.dev" target="_blank">
-			<img src="/vite.svg" class="logo" alt="Vite Logo" />
-		</a>
-		<a href="https://svelte.dev" target="_blank">
-			<img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-		</a>
-	</div>
-	<h1>Vite + Svelte</h1>
+<main class:flash={flashing}>
+	<h1>Stanford Hunt</h1>
 
-	<div class="card">
-		<Counter />
-	</div>
-
-	<p>
-		Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank"
-			>SvelteKit</a
-		>, the official Svelte app framework powered by Vite!
-	</p>
-
-	<p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
+	{#if error}
+		<p>{error}</p>
+	{:else if gameState === "AwaitingGPS"}
+		<p>Awaiting GPS coordinates...</p>
+	{:else if gameState === "Playing"}
+		<div>
+			<p style="margin-bottom: 5px">
+				Goal:<br />Get within {curThreshold} ft of:
+			</p>
+			<h2 style="margin-top: 5px">
+				{curLocation.name}
+			</h2>
+		</div>
+		<Timer {startTime} />
+		<div>
+			<p>Score: {score}</p>
+		</div>
+	{:else}
+		<button on:click={startGame}>Start Game</button>
+	{/if}
 </main>
 
 <style>
-	.logo {
-		height: 6em;
-		padding: 1.5em;
-		will-change: filter;
+	.flash {
+		animation: greenflash 1s;
 	}
-	.logo:hover {
-		filter: drop-shadow(0 0 2em #646cffaa);
-	}
-	.logo.svelte:hover {
-		filter: drop-shadow(0 0 2em #ff3e00aa);
-	}
-	.read-the-docs {
-		color: #888;
+
+	@keyframes greenflash {
+		from {
+			background-color: rgba(0, 255, 0);
+		}
+		to {
+			background-color: rgba(255, 255, 255);
+		}
 	}
 </style>

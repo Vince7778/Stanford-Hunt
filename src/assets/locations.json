@@ -1,6 +1,46 @@
 [
 	{
 		"name": "Branner Hall",
-		"location": [37.42553, -122.16283]
-	}
+		"coords": [37.42553, -122.16283]
+	},
+    {
+        "name": "Wilbur Field",
+        "coords": [37.423124361772416, -122.16431887199543],
+        "threshold": 180
+    },
+    {
+        "name": "Main Quad",
+        "coords": [37.42748275149643, -122.17025275417396]
+    },
+    {
+        "name": "The Oval",
+        "coords": [37.42986464063749, -122.16947271339265]
+    },
+    {
+        "name": "Frost Ampitheater Entrance",
+        "coords": [37.430998455185204, -122.16670399216976]
+    },
+    {
+        "name": "Crothers Hall",
+        "coords": [37.42556210348843, -122.1653086085956]
+    },
+    {
+        "name": "Stern Hall",
+        "coords": [37.424472336107904, -122.16565530784969],
+        "threshold": 230
+    },
+    {
+        "name": "Wilbur Hall",
+        "coords": [37.42401338462797, -122.16314160470047],
+        "threshold": 230
+    },
+    {
+        "name": "Hoover Tower Fountain",
+        "coords": [37.42834521662245, -122.16675560189806]
+    },
+    {
+        "name": "Roble Field",
+        "coords": [37.42635374435134, -122.17592710799053],
+        "threshold": 200
+    }
 ]
