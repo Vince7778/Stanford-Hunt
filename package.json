@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"devhost": "vite --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-check --tsconfig ./tsconfig.json"
@@ -12,6 +13,7 @@
 	"devDependencies": {
 		"@sveltejs/vite-plugin-svelte": "^1.0.2",
 		"@tsconfig/svelte": "^3.0.0",
+		"gh-pages": "^4.0.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-svelte": "^2.7.0",
 		"svelte": "^3.49.0",

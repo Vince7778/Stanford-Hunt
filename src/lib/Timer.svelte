@@ -1,6 +1,9 @@
 <script lang="ts">
 	export let startTime: Date;
-	let displayTime = formatTime(new Date().getTime() - startTime.getTime());
+	export let penalty: number;
+	let displayTime = formatTime(
+		new Date().getTime() - startTime.getTime() + penalty * 1000
+	);
 	export let updateInterval = 50;
 
 	function padZeros(str: string, totalLen: number) {
@@ -20,7 +23,9 @@
 	}
 
 	setInterval(() => {
-		displayTime = formatTime(new Date().getTime() - startTime.getTime());
+		displayTime = formatTime(
+			new Date().getTime() - startTime.getTime() + penalty * 1000
+		);
 	}, updateInterval);
 </script>
 

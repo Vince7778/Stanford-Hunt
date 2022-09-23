@@ -21,11 +21,26 @@ export function calculateDistance(
 	);
 }
 
-export function distanceSort(pos: GeolocationCoordinates) {
+export function distanceSort(pos: Coordinates) {
 	return (a: GameLocation, b: GameLocation) => {
 		return (
 			calculateDistance(a.coords[0], a.coords[1], pos.latitude, pos.longitude) -
 			calculateDistance(b.coords[0], b.coords[1], pos.latitude, pos.longitude)
 		);
 	};
+}
+
+const coordNames = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
+
+export function getBearing(lat1, long1, lat2, long2) {
+	let radians = Math.atan2(long2 - long1, lat2 - lat1);
+
+	var compassReading = radians * (180 / Math.PI);
+
+	var coordIndex = Math.round(compassReading / 45);
+	if (coordIndex < 0) {
+		coordIndex = coordIndex + 8;
+	}
+
+	return coordNames[coordIndex]; // returns the coordinate value
 }

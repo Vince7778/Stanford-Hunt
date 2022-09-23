@@ -42,5 +42,9 @@
         "name": "Roble Field",
         "coords": [37.42635374435134, -122.17592710799053],
         "threshold": 200
+    },
+    {
+        "name": "Stanford Bookstore",
+        "coords": [37.424818758779416, -122.16864096711038]
     }
 ]
